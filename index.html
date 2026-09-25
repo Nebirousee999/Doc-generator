@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор документов — Excel + Word</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <h1>📄 Генератор документов</h1>
+    <p class="subtitle">Excel + Word-шаблон = пакет готовых документов. Всё работает в браузере, данные не покидают ваше устройство.</p>
+
+    <!-- Шаг 1: Excel -->
+    <div class="step active" id="step1">
+        <div class="step-header">
+            <div class="step-number">1</div>
+            <div>
+                <div class="step-title">Загрузите таблицу Excel</div>
+                <div class="step-desc">Первая строка должна содержать заголовки колонок</div>
+            </div>
+        </div>
+        <div class="drop-zone" id="excelDropZone">
+            <input type="file" id="excelInput" accept=".xlsx,.xls,.csv">
+            <div class="drop-zone-icon">📊</div>
+            <div class="drop-zone-text">Перетащите файл сюда или <strong>выберите на компьютере</strong></div>
+        </div>
+        <div class="file-info" id="excelInfo"></div>
+        <div class="error-msg" id="excelError"></div>
+    </div>
+
+    <!-- Шаг 2: Word-шаблон -->
+    <div class="step" id="step2">
+        <div class="step-header">
+            <div class="step-number">2</div>
+            <div>
+                <div class="step-title">Загрузите Word-шаблон</div>
+                <div class="step-desc">Вставьте теги <code>{{название_колонки}}</code> в нужные места документа</div>
+            </div>
+        </div>
+        <div class="drop-zone" id="wordDropZone">
+            <input type="file" id="wordInput" accept=".docx">
+            <div class="drop-zone-icon">📝</div>
+            <div class="drop-zone-text">Перетащите файл <strong>.docx</strong> сюда или выберите на компьютере</div>
+        </div>
+        <div class="file-info" id="wordInfo"></div>
+
+        <div class="tags-container" id="tagsContainer">
+            <div class="tags-title">🔍 Найденные теги в шаблоне:</div>
+            <div class="tags-list" id="tagsList"></div>
+            <div class="tags-title" style="margin-top:12px;">📋 Колонки в Excel:</div>
+            <div class="tags-list" id="columnsList"></div>
+        </div>
+
+        <div class="error-msg" id="wordError"></div>
+    </div>
+
+    <!-- Шаг 3: Генерация -->
+    <div class="step" id="step3">
+        <div class="step-header">
+            <div class="step-number">3</div>
+            <div>
+                <div class="step-title">Сгенерировать документы</div>
+                <div class="step-desc">Будет создан один DOCX-файл для каждой строки таблицы</div>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-success" id="generateBtn" disabled>
+                🚀 Сгенерировать документы
+            </button>
+            <button class="btn btn-secondary" id="resetBtn">Сбросить</button>
+        </div>
+        <div class="success-msg" id="successMsg"></div>
+        <div class="error-msg" id="generateError"></div>
+    </div>
+
+    <div class="footer">
+        Все операции выполняются локально в вашем браузере. Файлы не загружаются на сервер.
+    </div>
+
+    <!-- Библиотеки с CDN (обновлённые версии) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pizzip@3.2.0/dist/pizzip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.70.0/build/docxtemplater.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
