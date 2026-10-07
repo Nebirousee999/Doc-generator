@@ -1,88 +1,1207 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Генератор документов — Excel + Word</title>
+    <title>list2doc.ru — инструменты для работы с документами</title>
+    <meta name="description" content="Сжатие PDF, конвертация форматов и генерация документов Word из Excel. Всё работает в браузере — данные не покидают ваше устройство.">
+    <link rel="icon" href="data:,">
+    <link rel="preload" as="image" href="Image/szat_sh1.png">
+    <link rel="preload" as="image" href="Image/szat_sh2.png">
+    <link rel="preload" as="image" href="Image/convert_sh2.png">
+    <link rel="preload" as="image" href="Image/gen_sh1.png">
+    <link rel="preload" as="image" href="Image/gen_sh2.png">
+    <link rel="preload" as="image" href="Image/Shapka.png">
+    <script src="js/pricing.config.js"></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-    <h1>📄 Генератор документов</h1>
-    <p class="subtitle">Excel + Word-шаблон = пакет готовых документов. Всё работает в браузере, данные не покидают ваше устройство.</p>
-
-    <!-- Шаг 1: Excel -->
-    <div class="step active" id="step1">
-        <div class="step-header">
-            <div class="step-number">1</div>
-            <div>
-                <div class="step-title">Загрузите таблицу Excel</div>
-                <div class="step-desc">Первая строка должна содержать заголовки колонок</div>
-            </div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-box">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loadingText">Загрузка документа...</div>
         </div>
-        <div class="drop-zone" id="excelDropZone">
-            <input type="file" id="excelInput" accept=".xlsx,.xls,.csv">
-            <div class="drop-zone-icon">📊</div>
-            <div class="drop-zone-text">Перетащите файл сюда или <strong>выберите на компьютере</strong></div>
-        </div>
-        <div class="file-info" id="excelInfo"></div>
-        <div class="error-msg" id="excelError"></div>
     </div>
 
-    <!-- Шаг 2: Word-шаблон -->
-    <div class="step" id="step2">
-        <div class="step-header">
-            <div class="step-number">2</div>
-            <div>
-                <div class="step-title">Загрузите Word-шаблон</div>
-                <div class="step-desc">Вставьте теги <code>{{название_колонки}}</code> в нужные места документа</div>
-            </div>
-        </div>
-        <div class="drop-zone" id="wordDropZone">
-            <input type="file" id="wordInput" accept=".docx">
-            <div class="drop-zone-icon">📝</div>
-            <div class="drop-zone-text">Перетащите файл <strong>.docx</strong> сюда или выберите на компьютере</div>
-        </div>
-        <div class="file-info" id="wordInfo"></div>
-
-        <div class="tags-container" id="tagsContainer">
-            <div class="tags-title">🔍 Найденные теги в шаблоне:</div>
-            <div class="tags-list" id="tagsList"></div>
-            <div class="tags-title" style="margin-top:12px;">📋 Колонки в Excel:</div>
-            <div class="tags-list" id="columnsList"></div>
-        </div>
-
-        <div class="error-msg" id="wordError"></div>
+    <div class="top-bar">
+        <a class="top-bar-btn" href="catalog.html">💎 Каталог и цены</a>
+        <a class="top-bar-btn" href="blog.html">📖 Блог</a>
+        <button class="top-bar-btn" id="securityBtn" type="button" title="Как мы защищаем ваши данные">
+            🔒 Безопасность данных
+        </button>
     </div>
 
-    <!-- Шаг 3: Генерация -->
-    <div class="step" id="step3">
-        <div class="step-header">
-            <div class="step-number">3</div>
-            <div>
-                <div class="step-title">Сгенерировать документы</div>
-                <div class="step-desc">Будет создан один DOCX-файл для каждой строки таблицы</div>
+    <header class="site-header">
+        <h1>🛠️ Инструменты для документов</h1>
+        <p class="subtitle">Сжатие PDF, конвертация форматов и генерация документов. Всё работает в браузере — данные не покидают ваше устройство.</p>
+
+        <div class="credits-balance" id="creditsBalance" title="Купить баллы">
+            <span class="credits-item">🎁 <span id="creditsFree">—/—</span> бесплатных</span>
+            <span class="credits-item">💎 <span id="creditsPaid">—</span> баллов</span>
+        </div>
+    </header>
+
+    <nav class="main-nav" role="tablist">
+        <button class="main-nav-btn active" data-page="compress" role="tab">📉 Объединить/Сжать/Разделить/Подписать PDF</button>
+        <button class="main-nav-btn" data-page="converter" role="tab">🔄 Конвертер форматов</button>
+        <button class="main-nav-btn" data-page="generator" role="tab">📄 Генератор документов</button>
+        <button class="main-nav-btn" data-page="ocr" role="tab">🔍 Распознавание текста</button>
+        <button class="main-nav-btn" data-page="compare" role="tab">⚖️ Сравнение договоров</button>
+    </nav>
+
+    <section class="page active" id="page-compress" role="tabpanel">
+
+        <div class="step active" id="pdfStep1">
+            <a class="step-help" href="blog/szhatie-pdf.html" target="_blank" rel="noopener" title="Как это работает">
+                <span class="step-help-text">Как это работает</span>
+                <span class="step-help-icon">?</span>
+            </a>
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div>
+                    <div class="step-title">Загрузите PDF-документ</div>
+                    <div class="step-desc">Один или несколько файлов. Все разделы работают с несколькими документами.</div>
+                </div>
+            </div>
+            <div class="drop-zone" id="pdfDropZone">
+                <input type="file" id="pdfInput" accept=".pdf" multiple>
+                <div class="drop-zone-icon" aria-hidden="true">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 6 L94 50 L68 50 L68 94 L32 94 L32 50 L6 50 Z" fill="currentColor" />
+                    </svg>
+                </div>
+                <div class="drop-zone-text">Перетащите PDF сюда или <strong>выберите на компьютере</strong></div>
+            </div>
+            <div class="file-info" id="pdfInfo"></div>
+            <div class="error-msg" id="pdfError"></div>
+        </div>
+
+        <div class="pdf-workarea" id="pdfWorkarea">
+
+            <div class="quality-header" id="qualityHeader" style="display:none;">
+                <label class="quality-header-label">Файл:</label>
+                <select id="qualityDocSelect" class="quality-doc-select"></select>
+            </div>
+
+            <div class="pdf-tabs" role="tablist">
+                <button class="pdf-tab-btn active" data-pdf-tab="quality" role="tab">📉 Качество и размер</button>
+                <button class="pdf-tab-btn" data-pdf-tab="edit" role="tab">✂️ Редактирование страниц</button>
+                <button class="pdf-tab-btn" data-pdf-tab="markup" role="tab">🏷️ Маркировка</button>
+                <button class="pdf-tab-btn" data-pdf-tab="signature" role="tab">✍️ Подпись</button>
+            </div>
+
+            <div class="pdf-tab-content active" id="pdf-tab-quality">
+                <label class="quality-edit-toggle" id="qualityEditSeparateWrap" style="display:none; margin-bottom:12px;">
+                    <input type="checkbox" id="qualityEditSeparate">
+                    <span>Редактировать вес этого файла отдельно</span>
+                </label>
+
+                <div class="size-info">
+                    <div class="size-row"><span>Текущий вес:</span><strong id="pdfOriginalSize">—</strong></div>
+                    <div class="size-row"><span>Страниц:</span><strong id="pdfPageCount">—</strong></div>
+                    <div class="size-row"><span>После правок:</span><strong id="pdfEditedSize">—</strong></div>
+                </div>
+                <div class="config-label" style="margin-top:16px;">Желаемый вес max</div>
+                <div class="target-input">
+                    <input type="number" id="pdfTargetSize" min="10" placeholder="например, 500">
+                    <span>КБ</span>
+                    <button class="btn btn-secondary btn-small" id="clearTargetBtn" title="Убрать ограничение">×</button>
+                </div>
+                <div class="quality-slider" style="margin-top:12px;">
+                    <input type="range" id="pdfSizeSlider" min="10" max="100" value="100">
+                    <span id="pdfSizeSliderValue">100%</span>
+                </div>
+                <p class="col-hint">Оставьте пустым — файл сохранится без сжатия, в оригинальном качестве (полезно при наложении подписи). Укажите число или двигайте ползунок — подберём параметры под целевой вес.</p>
+
+                <div class="quality-master" id="qualityMasterWrap" style="display:none;">
+                    <div class="config-label">Общий спиннер — применить ко всем файлам</div>
+                    <div class="quality-slider">
+                        <input type="range" id="qualityMasterSlider" min="10" max="100" value="100">
+                        <span id="qualityMasterValue">100%</span>
+                    </div>
+
+                    <div class="config-label" style="margin-top:12px;">Или общий вес max (все файлы вместе)</div>
+                    <div class="target-input">
+                        <input type="number" id="qualityMasterTargetSize" min="10" placeholder="например, 2000">
+                        <span>КБ</span>
+                        <button class="btn btn-secondary btn-small" id="clearMasterTargetBtn" title="Убрать ограничение">×</button>
+                    </div>
+                    <p class="col-hint">Суммарный вес всех файлов. Распределится пропорционально исходным весам. Файлы с галочкой «Редактировать отдельно» в расчёт не входят.</p>
+                </div>
+            </div>
+
+            <div class="pdf-tab-content" id="pdf-tab-edit">
+
+                <div class="split-section">
+                    <div class="col-title">✂️ Разделение на части</div>
+                    <p class="col-hint">
+                        Выделяйте страницы в списке ниже (клик, Ctrl+клик, Shift+клик), затем жмите
+                        «Добавить диапазон». Двигайте точки между частями, чтобы менять границы.
+                        Разбиение применится при нажатии «Скачать PDF» внизу.
+                    </p>
+
+                    <div class="split-bar-wrap">
+                        <div class="split-bar" id="splitBar"></div>
+                    </div>
+
+                    <div class="actions" style="margin-top:12px;">
+                        <button class="btn btn-secondary" id="splitAddRangeBtn">➕ Добавить диапазон</button>
+                    </div>
+                    <div class="progress-msg" id="splitProgress"></div>
+                    <div class="error-msg" id="splitError"></div>
+                </div>
+
+                <p class="col-hint" style="margin-top:20px;">
+                    Перетащите страницы, чтобы изменить порядок. Кнопка «Добавить страницу» позволяет догрузить другой PDF —
+                    новые страницы добавятся в конец, вкладки останутся доступными.
+                </p>
+                <div class="pdf-pages" id="pdfPages"></div>
+                <div class="pdf-edit-actions">
+                    <button class="btn btn-secondary" id="addPageBtn">➕ Добавить страницу</button>
+                    <input type="file" id="addPageInput" accept=".pdf" style="display:none;">
+                    <button class="btn btn-secondary" id="resetPagesBtn">↺ Сбросить правки</button>
+                </div>
+            </div>
+
+            <div class="pdf-tab-content" id="pdf-tab-markup">
+
+                <div class="page-top-hint">
+                    Номер и маркировку можно таскать прямо по листу. У маркировки размер — за уголок справа снизу.
+                </div>
+
+                <div class="markup-layout">
+                    <div class="markup-sidebar">
+
+                        <div class="preview-nav" id="markupNavPanel">
+                            <button class="preview-nav-toggle" id="markupNavToggle" type="button" title="Свернуть/развернуть">▾</button>
+                            <div class="preview-nav-body">
+                                <div class="preview-nav-thumb" id="markupNavThumb">
+                                    <img id="markupNavImg" alt="">
+                                    <div class="preview-nav-viewport" id="markupNavViewport"></div>
+                                </div>
+                                <div class="preview-nav-scale-label">Масштаб</div>
+                                <div class="preview-nav-slider-row">
+                                    <input type="range" id="markupZoomSlider" min="25" max="400" step="5" value="100">
+                                    <span id="markupZoomLabel">100%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <label class="quality-edit-toggle" id="markupEditSeparateWrap" style="display:none;">
+                            <input type="checkbox" id="markupEditSeparate">
+                            <span>Редактировать маркировку отдельно</span>
+                        </label>
+                        <div class="markup-param-tabs">
+                            <button type="button" class="markup-param-tab active" data-markup-tab="all" id="markupTabAll">Для всех</button>
+                            <button type="button" class="markup-param-tab" data-markup-tab="page" id="markupTabPage">Для данной</button>
+                        </div>
+
+                        <div class="markup-param-content active" data-markup-content="all">
+
+                            <div class="markup-types">
+                                <label class="markup-type-checkbox">
+                                    <input type="checkbox" id="markupNumberingEnabled">
+                                    <span>🔢 Пронумеровать</span>
+                                </label>
+                                <label class="markup-type-checkbox">
+                                    <input type="checkbox" id="markupStampEnabled">
+                                    <span>🏷️ Маркировка</span>
+                                </label>
+                            </div>
+
+                            <div class="markup-settings" id="markupNumberingSettings" style="display:none;">
+                                <div class="zone-title">🔢 Настройки нумерации</div>
+
+                                <div class="markup-param-group">
+                                    <div class="config-label">Положение по ширине</div>
+                                    <div class="param-main-row">
+                                        <input type="number" id="markupNumX" min="0" max="595" value="298" class="param-num">
+                                        <span class="param-unit">px</span>
+                                        <span class="param-val" id="markupNumXPercentVal">50%</span>
+                                    </div>
+                                    <div class="param-slider-row">
+                                        <input type="range" id="markupNumXPercent" min="0" max="100" value="50" class="param-range">
+                                        <button type="button" class="param-step" data-target="markupNumX" data-step="-2">−</button>
+                                        <button type="button" class="param-step" data-target="markupNumX" data-step="2">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="markup-param-group">
+                                    <div class="config-label">Положение по высоте</div>
+                                    <div class="param-main-row">
+                                        <input type="number" id="markupNumY" min="0" max="842" value="800" class="param-num">
+                                        <span class="param-unit">px</span>
+                                        <span class="param-val" id="markupNumYPercentVal">95%</span>
+                                    </div>
+                                    <div class="param-slider-row">
+                                        <input type="range" id="markupNumYPercent" min="0" max="100" value="95" class="param-range">
+                                        <button type="button" class="param-step" data-target="markupNumY" data-step="-2">−</button>
+                                        <button type="button" class="param-step" data-target="markupNumY" data-step="2">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="markup-param-group">
+                                    <div class="config-label">Размер</div>
+                                    <div class="param-main-row">
+                                        <input type="number" id="markupNumSize" min="6" max="80" value="15" class="param-num">
+                                        <span class="param-unit">px</span>
+                                        <span class="param-val" id="markupNumSizePercentVal">2.5%</span>
+                                    </div>
+                                    <div class="param-slider-row">
+                                        <input type="range" id="markupNumSizePercent" min="0.5" max="15" step="0.1" value="2.5" class="param-range">
+                                        <button type="button" class="param-step" data-target="markupNumSize" data-step="-1">−</button>
+                                        <button type="button" class="param-step" data-target="markupNumSize" data-step="1">+</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="markup-settings" id="markupStampSettings" style="display:none;">
+                                <div class="zone-title">🏷️ Настройки маркировки</div>
+
+                                <div class="config-label">Текст маркировки</div>
+                                <input type="text" id="markupStampText" class="markup-text-input" value="КОПИЯ">
+
+                                <div class="config-label" style="margin-top:12px;">Или картинка <span class="tags-hint">(заменит текст)</span></div>
+                                <div class="stamp-upload-row">
+                                    <input type="file" id="markupStampImage" accept="image/*">
+                                    <button type="button" class="btn btn-secondary btn-small" id="markupStampClear" style="display:none;">Убрать</button>
+                                </div>
+                                <div class="stamp-preview" id="markupStampPreview" style="display:none;"></div>
+
+                                <div class="markup-param-group" style="margin-top:14px;">
+                                    <div class="config-label">Прозрачность</div>
+                                    <div class="param-main-row">
+                                        <span class="param-val" style="margin-left:auto;" id="markupStampOpacityVal">50%</span>
+                                    </div>
+                                    <div class="param-slider-row">
+                                        <input type="range" id="markupStampOpacity" min="5" max="100" value="50" class="param-range">
+                                        <button type="button" class="param-step" data-target="markupStampOpacity" data-step="-2">−</button>
+                                        <button type="button" class="param-step" data-target="markupStampOpacity" data-step="2">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="markup-param-content" data-markup-content="page">
+                            <label class="per-page-activate-toggle">
+                                <input type="checkbox" id="markupPerPageActivate">
+                                <span>Использовать свои настройки для этой страницы</span>
+                            </label>
+
+                            <div class="per-page-content" id="markupPerPageContent">
+                                <div class="markup-types">
+                                    <label class="markup-type-checkbox">
+                                        <input type="checkbox" id="markupNumberingEnabled_p">
+                                        <span>🔢 Пронумеровать</span>
+                                    </label>
+                                    <label class="markup-type-checkbox">
+                                        <input type="checkbox" id="markupStampEnabled_p">
+                                        <span>🏷️ Маркировка</span>
+                                    </label>
+                                </div>
+
+                                <div class="markup-settings" id="markupNumberingSettings_p" style="display:none;">
+                                    <div class="zone-title">🔢 Настройки нумерации</div>
+
+                                    <div class="markup-param-group">
+                                        <div class="config-label">Положение по ширине</div>
+                                        <div class="param-main-row">
+                                            <input type="number" id="markupNumX_p" min="0" max="595" value="298" class="param-num">
+                                            <span class="param-unit">px</span>
+                                            <span class="param-val" id="markupNumXPercentVal_p">50%</span>
+                                        </div>
+                                        <div class="param-slider-row">
+                                            <input type="range" id="markupNumXPercent_p" min="0" max="100" value="50" class="param-range">
+                                            <button type="button" class="param-step" data-target="markupNumX_p" data-step="-2">−</button>
+                                            <button type="button" class="param-step" data-target="markupNumX_p" data-step="2">+</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="markup-param-group">
+                                        <div class="config-label">Положение по высоте</div>
+                                        <div class="param-main-row">
+                                            <input type="number" id="markupNumY_p" min="0" max="842" value="800" class="param-num">
+                                            <span class="param-unit">px</span>
+                                            <span class="param-val" id="markupNumYPercentVal_p">95%</span>
+                                        </div>
+                                        <div class="param-slider-row">
+                                            <input type="range" id="markupNumYPercent_p" min="0" max="100" value="95" class="param-range">
+                                            <button type="button" class="param-step" data-target="markupNumY_p" data-step="-2">−</button>
+                                            <button type="button" class="param-step" data-target="markupNumY_p" data-step="2">+</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="markup-param-group">
+                                        <div class="config-label">Размер</div>
+                                        <div class="param-main-row">
+                                            <input type="number" id="markupNumSize_p" min="6" max="80" value="15" class="param-num">
+                                            <span class="param-unit">px</span>
+                                            <span class="param-val" id="markupNumSizePercentVal_p">2.5%</span>
+                                        </div>
+                                        <div class="param-slider-row">
+                                            <input type="range" id="markupNumSizePercent_p" min="0.5" max="15" step="0.1" value="2.5" class="param-range">
+                                            <button type="button" class="param-step" data-target="markupNumSize_p" data-step="-1">−</button>
+                                            <button type="button" class="param-step" data-target="markupNumSize_p" data-step="1">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="markup-settings" id="markupStampSettings_p" style="display:none;">
+                                    <div class="zone-title">🏷️ Настройки маркировки</div>
+
+                                    <div class="markup-param-group">
+                                        <div class="config-label">Прозрачность</div>
+                                        <div class="param-main-row">
+                                            <span class="param-val" style="margin-left:auto;" id="markupStampOpacityVal_p">50%</span>
+                                        </div>
+                                        <div class="param-slider-row">
+                                            <input type="range" id="markupStampOpacity_p" min="5" max="100" value="50" class="param-range">
+                                            <button type="button" class="param-step" data-target="markupStampOpacity_p" data-step="-2">−</button>
+                                            <button type="button" class="param-step" data-target="markupStampOpacity_p" data-step="2">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="markup-preview-area">
+                        <div class="markup-preview-wrap" id="markupPreviewWrap">
+                            <div class="markup-preview-empty" id="markupPreviewEmpty">Сначала загрузите PDF</div>
+                            <div class="markup-preview-scroll" id="markupPreviewScroll">
+                                <div class="markup-preview-sheet" id="markupPreviewSheet" style="display:none;"></div>
+                            </div>
+                        </div>
+                        <div class="markup-page-nav">
+                            <button type="button" class="markup-nav-btn" id="markupPagePrev">◀</button>
+                            <input type="range" id="markupPageSlider" min="1" max="1" value="1" class="markup-page-slider">
+                            <button type="button" class="markup-nav-btn" id="markupPageNext">▶</button>
+                            <input type="number" id="markupPageInput" min="1" value="1" class="markup-page-input">
+                            <span class="markup-page-total">/ <span id="markupPageTotal">1</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pdf-tab-content" id="pdf-tab-signature">
+
+                <div class="page-top-hint">
+                    Клик по подписи — выделить. Углы — размер. Кружок — цвет. Двойной клик — текст. Ctrl+клик — мультивыделение.
+                </div>
+
+                <div class="signature-layout">
+                    <div class="signature-sidebar">
+
+                        <div class="preview-nav" id="sigNavPanel">
+                            <button class="preview-nav-toggle" id="sigNavToggle" type="button" title="Свернуть/развернуть">▾</button>
+                            <div class="preview-nav-body">
+                                <div class="preview-nav-thumb" id="sigNavThumb">
+                                    <img id="sigNavImg" alt="">
+                                    <div class="preview-nav-viewport" id="sigNavViewport"></div>
+                                </div>
+                                <div class="preview-nav-scale-label">Масштаб</div>
+                                <div class="preview-nav-slider-row">
+                                    <input type="range" id="sigZoomSlider" min="25" max="400" step="5" value="100">
+                                    <span id="sigZoomLabel">100%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary btn-small btn-dup-inline" id="signatureDuplicateBtn" style="width:100%;">📋 Дублировать выделенное</button>
+
+                        <div class="markup-param-tabs">
+                            <button type="button" class="sig-mode-tab active" data-sig-mode="draw">✍️ Нарисовать</button>
+                            <button type="button" class="sig-mode-tab" data-sig-mode="initials">🔤 Инициалы</button>
+                            <button type="button" class="sig-mode-tab" data-sig-mode="date">📅 Дата</button>
+                        </div>
+
+                        <div class="sig-panel" id="sigPanelDraw">
+                            <canvas id="signatureCanvas" width="480" height="220"></canvas>
+                        </div>
+                        <button class="btn btn-secondary btn-small" id="sigClearBtn" style="width: 100%; justify-content: center;">Очистить поле</button>
+
+                        <div class="sig-panel" id="sigPanelInitials" style="display:none;">
+                            <div class="config-label">ФИО (до 30 символов)</div>
+                            <input type="text" id="sigInitialsText" class="markup-text-input" value="И.И. Иванов" maxlength="30">
+                        </div>
+
+                        <div class="sig-panel" id="sigPanelDate" style="display:none;">
+                            <div class="config-label">Дата</div>
+                            <input type="date" id="sigDateInput" class="markup-text-input">
+                        </div>
+
+                        <div class="config-label" style="margin-top:14px;">Цвет</div>
+                        <div class="sig-color-row">
+                            <label class="sig-color-opt">
+                                <input type="radio" name="sigColor" value="#000000" checked>
+                                <span class="sig-color-swatch" style="background:#000000;"></span> Чёрный
+                            </label>
+                            <label class="sig-color-opt">
+                                <input type="radio" name="sigColor" value="#455696">
+                                <span class="sig-color-swatch" style="background:#455696;"></span> Тёмно-синий
+                            </label>
+                        </div>
+
+                        <div style="display:none;">
+                            <input type="range" id="sigWidthPercent" min="5" max="100" value="25" class="param-range">
+                            <span id="sigWidthPercentVal">25%</span>
+                        </div>
+
+                        <div class="actions" style="margin-top:14px;">
+                            <button class="btn btn-success" id="sigAddBtn">➕ Добавить на страницу</button>
+                        </div>
+
+                        <div class="sig-page-info">
+                            Текущая страница: <strong id="sigPageNum">1</strong> из <strong id="sigPageTotal">1</strong>
+                        </div>
+                    </div>
+
+                    <div class="signature-preview-area">
+                        <div class="signature-preview-wrap" id="signaturePreviewWrap">
+                            <div class="signature-empty" id="signatureEmpty">Загрузите PDF</div>
+                            <div class="signature-preview-scroll" id="signaturePreviewScroll">
+                                <div class="signature-preview-sheet" id="signaturePreviewSheet" style="display:none;"></div>
+                            </div>
+                        </div>
+                        <div class="markup-page-nav">
+                            <button type="button" class="markup-nav-btn" id="sigPagePrev">◀</button>
+                            <input type="range" id="sigPageSlider" min="1" max="1" value="1" class="markup-page-slider">
+                            <button type="button" class="markup-nav-btn" id="sigPageNext">▶</button>
+                            <input type="number" id="sigPageInput" min="1" value="1" class="markup-page-input">
+                            <span class="markup-page-total">/ <span id="sigPageTotalNav">1</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pdf-actions-bottom">
+                <label class="merge-toggle" id="mergeToggleWrap" style="display:none;">
+                    <input type="checkbox" id="mergeOutputPdf">
+                    <span>Объединить все документы в один PDF</span>
+                </label>
+                <div class="actions" style="margin-top:0;">
+                    <button class="btn btn-success" id="compressPdfBtn" disabled>
+                        💾 Скачать PDF
+                        <span class="cost-badge" id="compressCostBadge">💎 1</span>
+                    </button>
+                </div>
+                <div class="progress-msg" id="pdfProgress"></div>
+                <div class="success-msg" id="pdfSuccess"></div>
+                <div class="error-msg" id="pdfCompressError"></div>
             </div>
         </div>
-        <div class="actions">
-            <button class="btn btn-success" id="generateBtn" disabled>
-                🚀 Сгенерировать документы
-            </button>
-            <button class="btn btn-secondary" id="resetBtn">Сбросить</button>
+    </section>
+
+    <section class="page" id="page-converter" role="tabpanel">
+        <div class="step active" id="convStep1">
+            <a class="step-help" href="blog/konverter-formatov.html" target="_blank" rel="noopener" title="Как это работает">
+                <span class="step-help-text">Как это работает</span>
+                <span class="step-help-icon">?</span>
+            </a>
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div>
+                    <div class="step-title">Загрузите файлы</div>
+                    <div class="step-desc">Можно несколько сразу. Поддерживаются PDF, DOC, DOCX, картинки, таблицы и текст</div>
+                </div>
+            </div>
+            <div class="drop-zone" id="convDropZone">
+                <input type="file" id="convInput" multiple
+                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.bmp,.gif,.xlsx,.xls,.csv,.txt,.json">
+                <div class="drop-zone-icon" aria-hidden="true">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 6 L94 50 L68 50 L68 94 L32 94 L32 50 L6 50 Z" fill="currentColor" />
+                    </svg>
+                </div>
+                <div class="drop-zone-text">Перетащите файлы сюда или <strong>выберите на компьютере</strong></div>
+            </div>
+            <div class="file-info" id="convInfo"></div>
+            <div class="error-msg" id="convError"></div>
         </div>
-        <div class="success-msg" id="successMsg"></div>
-        <div class="error-msg" id="generateError"></div>
-    </div>
+
+        <div class="step" id="convStep2">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div>
+                    <div class="step-title">Выберите формат и настройки</div>
+                    <div class="step-desc">Доступные форматы зависят от типов загруженных файлов</div>
+                </div>
+            </div>
+            <div class="conv-files" id="convFiles"></div>
+            <div class="conv-options" id="convOptions">
+                <div class="conv-option-row">
+                    <label for="convTargetFormat">Конвертировать в:</label>
+                    <select id="convTargetFormat"></select>
+                </div>
+                <div class="conv-option-row" id="convQualityRow">
+                    <label for="convQualitySlider">Качество (для JPG/WEBP):</label>
+                    <input type="range" id="convQualitySlider" min="30" max="100" value="85">
+                    <span id="convQualityValue">85%</span>
+                    <span class="conv-estimate" id="convEstimate"></span>
+                </div>
+                <div class="actions" style="margin-top:16px;">
+                    <button class="btn btn-success" id="convStartBtn" disabled>
+                        🔄 Конвертировать
+                        <span class="cost-badge" id="convCostBadge">💎 —</span>
+                    </button>
+                    <button class="btn btn-secondary" id="convResetBtn">Сбросить</button>
+                </div>
+            </div>
+            <div class="progress-msg" id="convProgress"></div>
+            <div class="success-msg" id="convSuccess"></div>
+            <div class="error-msg" id="convError2"></div>
+        </div>
+    </section>
+
+    <section class="page" id="page-generator" role="tabpanel">
+        <div class="step active" id="step1">
+            <a class="step-help" href="blog/generator-dokumentov.html" target="_blank" rel="noopener" title="Как это работает">
+                <span class="step-help-text">Как это работает</span>
+                <span class="step-help-icon">?</span>
+            </a>
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div>
+                    <div class="step-title">Загрузите таблицу Excel</div>
+                    <div class="step-desc">Первая строка должна содержать заголовки колонок</div>
+                </div>
+            </div>
+            <div class="drop-zone" id="excelDropZone">
+                <input type="file" id="excelInput" accept=".xlsx,.xls,.csv">
+                <div class="drop-zone-icon" aria-hidden="true">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 6 L94 50 L68 50 L68 94 L32 94 L32 50 L6 50 Z" fill="currentColor" />
+                    </svg>
+                </div>
+                <div class="drop-zone-text">Перетащите файл сюда или <strong>выберите на компьютере</strong></div>
+            </div>
+            <div class="file-info" id="excelInfo"></div>
+            <div class="error-msg" id="excelError"></div>
+        </div>
+
+        <div class="step" id="step2">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div>
+                    <div class="step-title">Загрузите Word-шаблон</div>
+                    <div class="step-desc">Вставьте теги <code>{{название_колонки}}</code> в нужные места документа</div>
+                </div>
+            </div>
+            <div class="drop-zone" id="wordDropZone">
+                <input type="file" id="wordInput" accept=".docx,.doc">
+                <div class="drop-zone-icon" aria-hidden="true">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 6 L94 50 L68 50 L68 94 L32 94 L32 50 L6 50 Z" fill="currentColor" />
+                    </svg>
+                </div>
+                <div class="drop-zone-text">Перетащите файл <strong>.docx</strong> или <strong>.doc</strong> сюда или выберите на компьютере</div>
+            </div>
+            <div class="file-info" id="wordInfo"></div>
+            <div class="tags-container" id="tagsContainer">
+                <div class="tags-title">🔍 Найденные теги в шаблоне:</div>
+                <div class="tags-list" id="tagsList"></div>
+                <div class="tags-title" style="margin-top:12px;">📋 Колонки в Excel:</div>
+                <div class="tags-list" id="columnsList"></div>
+            </div>
+            <div class="error-msg" id="wordError"></div>
+        </div>
+
+        <div class="step" id="step3">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <div>
+                    <div class="step-title">Сгенерировать документы</div>
+                    <div class="step-desc">Будет создан один DOCX-файл для каждой строки таблицы</div>
+                </div>
+            </div>
+            <div class="step-columns">
+                <div class="step-col-left">
+                    <div class="actions">
+                        <button class="btn btn-success" id="generateBtn" disabled>
+                            🚀 Сгенерировать документы
+                            <span class="cost-badge" id="generateCostBadge">💎 —</span>
+                        </button>
+                        <button class="btn btn-secondary" id="resetBtn">Сбросить</button>
+                    </div>
+                </div>
+                <div class="step-col-right">
+                    <div class="col-title">🏷️ Наименование файла документа</div>
+                    <div class="filename-config" id="filenameConfig">
+                        <div class="config-label">Теги <span class="tags-hint">(нажмите, чтобы включить или выключить)</span></div>
+                        <div class="tag-toggles" id="tagToggles"></div>
+                        <div class="config-label" style="margin-top:14px;">Разделитель между тегами</div>
+                        <div class="separator-buttons" id="separatorButtons">
+                            <button type="button" class="sep-btn active" data-sep="space">Пробел</button>
+                            <button type="button" class="sep-btn" data-sep="_">_</button>
+                            <button type="button" class="sep-btn" data-sep="-">-</button>
+                        </div>
+                        <div class="filename-preview" id="filenamePreview">Пример имени: <strong>—</strong></div>
+                    </div>
+                    <div class="config-empty" id="configEmpty">Загрузите Excel и Word-шаблон, чтобы настроить имя файла</div>
+                </div>
+            </div>
+            <div class="success-msg" id="successMsg"></div>
+            <div class="error-msg" id="generateError"></div>
+        </div>
+    </section>
+
+    <section class="page" id="page-ocr" role="tabpanel">
+        <div class="step active" id="ocrStep1">
+            <a class="step-help" href="blog/raspoznavanie-teksta.html" target="_blank" rel="noopener" title="Как это работает">
+                <span class="step-help-text">Как это работает</span>
+                <span class="step-help-icon">?</span>
+            </a>
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div>
+                    <div class="step-title">Загрузите изображение или PDF</div>
+                    <div class="step-desc">Распознаем текст и покажем результат — можно будет скачать .txt</div>
+                </div>
+            </div>
+            <div class="drop-zone" id="ocrDropZone">
+                <input type="file" id="ocrInput" multiple accept="image/*,.pdf,.png,.jpg,.jpeg,.webp,.bmp,.tiff">
+                <div class="drop-zone-icon" aria-hidden="true">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 6 L94 50 L68 50 L68 94 L32 94 L32 50 L6 50 Z" fill="currentColor" />
+                    </svg>
+                </div>
+                <div class="drop-zone-text">Перетащите файлы сюда или <strong>выберите на компьютере</strong></div>
+            </div>
+            <div class="file-info" id="ocrInfo"></div>
+            <div class="error-msg" id="ocrError"></div>
+        </div>
+
+        <div class="step" id="ocrStep2">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div>
+                    <div class="step-title">Выберите язык и запустите распознавание</div>
+                    <div class="step-desc">Первый запуск может занять 20–60 секунд — скачиваем языковую модель</div>
+                </div>
+            </div>
+
+            <div class="conv-files" id="ocrFiles"></div>
+
+            <div class="conv-options">
+                <div class="conv-option-row">
+                    <label for="ocrLang">Язык текста:</label>
+                    <select id="ocrLang">
+                        <option value="rus+eng">Русский + английский</option>
+                        <option value="rus">Русский</option>
+                        <option value="eng">Английский</option>
+                    </select>
+                </div>
+
+                <div class="actions" style="margin-top:16px;">
+                    <button class="btn btn-success" id="ocrStartBtn" disabled>
+                        🔍 Распознать
+                        <span class="cost-badge" id="ocrCostBadge">💎 —</span>
+                    </button>
+                    <button class="btn btn-secondary" id="ocrResetBtn">Сбросить</button>
+                </div>
+            </div>
+
+            <div class="progress-msg" id="ocrProgress"></div>
+            <div class="success-msg" id="ocrSuccess"></div>
+            <div class="error-msg" id="ocrError2"></div>
+
+            <div class="conv-options" id="ocrResultWrap" style="display:none; margin-top:16px;">
+                <div class="col-title">📄 Распознанный текст</div>
+                <p class="col-hint">Можно отредактировать перед скачиванием. Если файлов было несколько — они разделены блоком с именем файла.</p>
+                <textarea id="ocrResultText" class="markup-text-input"
+                          rows="16" style="width:100%; font-family:'SF Mono', Monaco, monospace; font-size:13px; line-height:1.5;"></textarea>
+                <div class="actions" style="margin-top:12px;">
+                    <button class="btn btn-secondary" id="ocrDownloadTxt">💾 Скачать .txt</button>
+                    <button class="btn btn-secondary" id="ocrCopyBtn">📋 Копировать</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="page" id="page-compare" role="tabpanel">
+        <div class="step active" id="cmpStep1">
+            <a class="step-help" href="blog/sravnenie-dogovorov.html" target="_blank" rel="noopener" title="Как это работает">
+                <span class="step-help-text">Как это работает</span>
+                <span class="step-help-icon">?</span>
+            </a>
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div>
+                    <div class="step-title">Загрузите один или два документа</div>
+                    <div class="step-desc">Один файл — анализ рисков. Два файла — полное сравнение. PDF, DOCX, DOC.</div>
+                </div>
+            </div>
+
+            <div class="cmp-drop-zone-wrap">
+                <div class="cmp-drop-col">
+                    <div class="cmp-col-label">📄 Оригинал (A)</div>
+                    <div class="drop-zone" id="cmpDropA">
+                        <input type="file" id="cmpInputA" accept=".pdf,.doc,.docx">
+                        <div class="drop-zone-icon" aria-hidden="true">
+                            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M50 6 L94 50 L68 50 L68 94 L32 94 L32 50 L6 50 Z" fill="currentColor" />
+                            </svg>
+                        </div>
+                        <div class="drop-zone-text">Перетащите PDF/DOCX/DOC или <strong>выберите</strong></div>
+                    </div>
+                    <div class="file-info" id="cmpInfoA"></div>
+                </div>
+                <div class="cmp-drop-col">
+                    <div class="cmp-col-label">📝 Редакция (Б)</div>
+                    <div class="drop-zone" id="cmpDropB">
+                        <input type="file" id="cmpInputB" accept=".pdf,.doc,.docx">
+                        <div class="drop-zone-icon" aria-hidden="true">
+                            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M50 6 L94 50 L68 50 L68 94 L32 94 L32 50 L6 50 Z" fill="currentColor" />
+                            </svg>
+                        </div>
+                        <div class="drop-zone-text">Перетащите PDF/DOCX/DOC или <strong>выберите</strong></div>
+                    </div>
+                    <div class="file-info" id="cmpInfoB"></div>
+                </div>
+            </div>
+            <div class="error-msg" id="cmpError"></div>
+        </div>
+
+        <div class="step" id="cmpStep2">
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div>
+                    <div class="step-title">Запустите сравнение</div>
+                    <div class="step-desc">Найдём различия по строкам, по словам и по пунктам, подсветим опасные изменения и выявим юридические риски</div>
+                </div>
+            </div>
+            <div class="actions" style="margin-top:0;">
+                <button class="btn btn-success" id="cmpStartBtn" disabled>
+                    ⚖️ Сравнить
+                    <span class="cost-badge" id="cmpCostBadge">💎 3</span>
+                </button>
+                <button class="btn btn-secondary" id="cmpResetBtn">Сбросить</button>
+            </div>
+            <div class="progress-msg" id="cmpProgress"></div>
+            <div class="error-msg" id="cmpError2"></div>
+        </div>
+
+        <div class="step" id="cmpStep3" style="display:none;">
+            <div class="step-header">
+                <div class="step-number">3</div>
+                <div>
+                    <div class="step-title">Результат сравнения</div>
+                    <div class="step-desc" id="cmpSummary">—</div>
+                </div>
+            </div>
+
+            <div class="cmp-mode-tabs">
+                <button type="button" class="cmp-mode-tab active" data-cmp-mode="line">📏 Построчный</button>
+                <button type="button" class="cmp-mode-tab" data-cmp-mode="structure">📋 По пунктам</button>
+                <button type="button" class="cmp-mode-tab" data-cmp-mode="risks">⚠️ Анализ рисков</button>
+            </div>
+
+            <div class="cmp-toolbar">
+                <label class="cmp-toggle">
+                    <input type="checkbox" id="cmpShowSame" checked>
+                    Показывать неизменённые фрагменты
+                </label>
+                <label class="cmp-toggle">
+                    <input type="checkbox" id="cmpHighlightDanger" checked>
+                    Подсвечивать суммы, даты, сроки
+                </label>
+                <button type="button" class="btn btn-secondary btn-small" id="cmpDownloadDocx" style="margin-left:auto;">
+                    📄 Скачать отчёт DOCX
+                </button>
+            </div>
+
+            <div class="cmp-legend">
+                <span class="cmp-legend-item"><span class="cmp-legend-swatch same"></span> без изменений</span>
+                <span class="cmp-legend-item"><span class="cmp-legend-swatch removed"></span> удалено</span>
+                <span class="cmp-legend-item"><span class="cmp-legend-swatch added"></span> добавлено</span>
+                <span class="cmp-legend-item"><span class="cmp-legend-swatch changed"></span> изменено</span>
+                <span class="cmp-legend-item"><span class="cmp-legend-swatch danger"></span> требует внимания</span>
+            </div>
+
+            <div id="cmpViewLine">
+                <div class="cmp-result-head">
+                    <div class="cmp-result-head-cell">📄 Оригинал (A)</div>
+                    <div class="cmp-result-head-cell">📝 Редакция (Б)</div>
+                </div>
+                <div class="cmp-result" id="cmpResult"></div>
+            </div>
+
+            <div id="cmpViewStructure" style="display:none;">
+                <div class="cmp-summary-bar" id="cmpStructSummary">—</div>
+                <div class="cmp-struct-list" id="cmpStructList"></div>
+            </div>
+
+            <div id="cmpViewRisks" style="display:none;">
+                <div class="cmp-toolbar">
+                    <label class="cmp-toggle">
+                        <input type="checkbox" id="cmpRisksCriticalOnly">
+                        Только критичные (высокий уровень)
+                    </label>
+                    <button type="button" class="btn btn-secondary btn-small" id="cmpDownloadRisksDocx" style="margin-left:auto;">
+                        📄 Скачать отчёт по рискам
+                    </button>
+                </div>
+                <div class="cmp-summary-bar" id="cmpRisksSummary">—</div>
+                <div class="cmp-risks-list" id="cmpRisksList"></div>
+            </div>
+        </div>
+    </section>
 
     <div class="footer">
-        Все операции выполняются локально в вашем браузере. Файлы не загружаются на сервер.
+        <div class="footer-links">
+            <a href="catalog.html">Каталог и цены</a>
+            <span class="footer-sep">·</span>
+            <a href="offer.html" target="_blank" rel="noopener">Публичная оферта</a>
+            <span class="footer-sep">·</span>
+            <a href="privacy.html" target="_blank" rel="noopener">Политика конфиденциальности</a>
+        </div>
+        <div class="footer-text">
+            Все операции выполняются локально в вашем браузере. Файлы не загружаются на сервер.
+        </div>
     </div>
 
-    <!-- Библиотеки с CDN (обновлённые версии) -->
+    <div class="modal-overlay" id="sigEditModal" aria-hidden="true">
+        <div class="modal-window sig-edit-window" role="dialog" aria-labelledby="sigEditTitle">
+            <div class="modal-header">
+                <h2 id="sigEditTitle">🔤 Текст инициалов</h2>
+                <button class="modal-close" id="sigEditClose" type="button" title="Закрыть">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="config-label">ФИО (до 30 символов)</div>
+                <input type="text" id="sigEditText" class="markup-text-input" maxlength="30" placeholder="И.И. Иванов">
+                <div class="actions" style="margin-top:18px; justify-content:flex-end;">
+                    <button class="btn btn-success" id="sigEditDone" type="button">Готово</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="securityModal" aria-hidden="true">
+        <div class="modal-window" role="dialog" aria-labelledby="securityModalTitle">
+            <div class="modal-header">
+                <h2 id="securityModalTitle">🔒 Безопасность данных</h2>
+                <button class="modal-close" id="securityModalClose" title="Закрыть">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-intro">
+                    Все инструменты работают прямо в вашем браузере. Ваши файлы
+                    никуда не отправляются и остаются только на вашем устройстве.
+                </p>
+                <div class="modal-section">
+                    <h3>📁 Файлы не покидают ваш компьютер</h3>
+                    <ul class="check-list">
+                        <li>Документы обрабатываются прямо в браузере.</li>
+                        <li>Ни один файл не отправляется на сервер.</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <h3>🗄️ Никакого хранения и логов</h3>
+                    <ul class="check-list">
+                        <li>У сервиса нет базы данных с вашими документами.</li>
+                        <li>Мы не ведём журнал того, что вы загружали.</li>
+                    </ul>
+                </div>
+                <div class="modal-section">
+                    <h3>👤 Регистрация не нужна</h3>
+                    <ul class="check-list">
+                        <li>Не нужно создавать аккаунт.</li>
+                        <li>Мы не собираем ваши персональные данные.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="howModal" aria-hidden="true">
+        <div class="modal-window" role="dialog" aria-labelledby="howModalTitle">
+            <div class="modal-header how-modal-header">
+                <h2 id="howModalTitle">🧭 Как это работает</h2>
+                <button class="modal-close" id="howModalClose" title="Закрыть">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="how-block">
+                    <img src="Image/kak_sh1.png" alt="Как работает сервис" class="how-block-img">
+                    <div class="how-block-text">
+                        <h3>🧭 Как работает сервис</h3>
+                        <p>Сервис создаёт много документов Word из одной таблицы Excel.</p>
+                        <ol>
+                            <li><strong>Загружаете Excel-файл</strong> с данными.</li>
+                            <li><strong>Загружаете Word-шаблон</strong> с тегами <code>{{Имя}}</code>.</li>
+                            <li><strong>Нажимаете «Сгенерировать»</strong> — получаете ZIP.</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="how-block">
+                    <img src="Image/kak_sh2.png" alt="Требования к Excel" class="how-block-img">
+                    <div class="how-block-text">
+                        <h3>📊 Требования к Excel</h3>
+                        <ul class="check-list">
+                            <li>Первая строка — заголовки колонок.</li>
+                            <li>Каждая строка — отдельный документ.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="how-block">
+                    <img src="Image/kak_sh3.png" alt="Требования к Word-шаблону" class="how-block-img">
+                    <div class="how-block-text">
+                        <h3>📝 Требования к Word-шаблону</h3>
+                        <ul class="check-list">
+                            <li>Только <code>.docx</code>.</li>
+                            <li>Теги в формате <code>{{Имя}}</code>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="purchaseModal" aria-hidden="true">
+        <div class="modal-window purchase-window" role="dialog" aria-labelledby="purchaseTitle">
+            <div class="modal-header purchase-header">
+                <h2 id="purchaseTitle">💎 Купить баллы</h2>
+                <button class="modal-close" id="purchaseClose" title="Закрыть">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="purchaseStep1">
+                    <p class="purchase-intro">
+                        1 балл = 1 операция. Бесплатные 20 операций тратятся первыми.
+                    </p>
+                    <div class="purchase-packages" id="purchasePackages"></div>
+                </div>
+                <div id="purchaseStep2" style="display:none;">
+                    <p class="purchase-intro">Укажите email — на него придёт чек.</p>
+                    <input type="email" id="purchaseEmail" class="purchase-input" placeholder="name@example.com">
+                    <button class="btn btn-success purchase-submit" id="purchaseEmailSubmit">Перейти к оплате</button>
+                </div>
+                <div id="purchaseStep3" style="display:none;">
+                    <p class="purchase-intro">Отсканируйте QR-код в приложении банка или откройте страницу оплаты.</p>
+                    <div class="purchase-qr" id="purchaseQr">
+                        <img id="purchaseQrImg" alt="" style="display:none;">
+                        <div class="purchase-qr-sum">К оплате: <strong id="purchaseQrSum">—</strong></div>
+                    </div>
+                    <button class="btn btn-secondary purchase-back" id="purchaseQrBack">← Выбрать другой пакет</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="sigDuplicateModal" aria-hidden="true">
+        <div class="modal-window" role="dialog" aria-labelledby="sigDupTitle">
+            <div class="modal-header">
+                <h2 id="sigDupTitle">📋 Дублировать элемент</h2>
+                <button class="modal-close" id="sigDupClose" type="button" title="Закрыть">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-intro" id="sigDupIntro">Выберите страницы, куда добавить копию этого элемента:</p>
+                <div class="dup-toolbar">
+                    <button type="button" class="btn btn-secondary btn-small" id="sigDupSelectAll">✓ Выделить все</button>
+                    <button type="button" class="btn btn-secondary btn-small" id="sigDupDeselectAll">✕ Снять выделение</button>
+                </div>
+                <div class="dup-tree" id="sigDupTree"></div>
+                <div class="actions" style="justify-content:flex-end; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" id="sigDupCancel">Отмена</button>
+                    <button type="button" class="btn btn-success" id="sigDupApply">Применить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pizzip@3.2.0/dist/pizzip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.70.0/build/docxtemplater.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-    <script src="js/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+
+    <script type="module">
+        const PROXY_URL = 'https://d5d1i62q8hna5lrs6ltb.avjje9e3.apigw.yandexcloud.net';
+        const LIBREOFFICE_PATH = '/libreoffice/';
+        window.__libreOfficeReady = false;
+        window.__libreOfficeError = null;
+        window.LibreOfficeConverter = null;
+        (async () => {
+            try {
+                const moduleUrl = PROXY_URL +
+                    '/@matbee/libreoffice-converter@2.7.2/es2022/browser.bundle.mjs?_=' + Date.now();
+                const mod = await import(moduleUrl);
+                const { BrowserConverter, createWasmPaths } = mod;
+                const converter = new BrowserConverter({
+                    ...createWasmPaths(LIBREOFFICE_PATH + 'wasm/'),
+                    onProgress: (info) => console.log(`[LibreOffice] ${info.percent}%: ${info.message}`)
+                });
+                await converter.initialize();
+                window.LibreOfficeConverter = converter;
+                window.__libreOfficeReady = true;
+                window.dispatchEvent(new Event('libreoffice-ready'));
+            } catch (err) {
+                window.__libreOfficeError = err;
+                console.error('[LibreOffice] Ошибка:', err);
+            }
+        })();
+    </script>
+
+    <script src="js/fingerprint.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/credits.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/pdf-core.js"></script>
+    <script src="js/pdf-quality.js"></script>
+    <script src="js/pdf-pages.js"></script>
+    <script src="js/pdf-markup.js"></script>
+    <script src="js/pdf-signature.js"></script>
+    <script src="js/pdf-output.js"></script>
+    <script src="js/converter.js"></script>
+    <script src="js/doc-generator.js"></script>
+    <script src="js/ocr.js"></script>
+    <script src="js/compare.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.Credits) Credits.init();
+        });
+    </script>
+
+    <script>
+        (function () {
+            'use strict';
+            function bindModal(btnId, modalId, closeId) {
+                var btn = document.getElementById(btnId);
+                var modal = document.getElementById(modalId);
+                var closeBtn = document.getElementById(closeId);
+                if (!btn || !modal) return;
+                function openModal() {
+                    modal.classList.add('visible');
+                    modal.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                }
+                function closeModal() {
+                    modal.classList.remove('visible');
+                    modal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
+                btn.addEventListener('click', function (e) {
+                    if (btnId === 'securityBtn') e.stopImmediatePropagation();
+                    openModal();
+                }, btnId === 'securityBtn');
+                if (closeBtn) closeBtn.addEventListener('click', closeModal);
+                modal.addEventListener('click', function (e) {
+                    if (e.target === modal) closeModal();
+                });
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && modal.classList.contains('visible')) closeModal();
+                });
+            }
+            bindModal('securityBtn', 'securityModal', 'securityModalClose');
+
+        })();
+    </script>
+
+    <script>
+        (function () {
+            'use strict';
+            // Все фоновые картинки уже загружены через <link rel="preload">
+            // Этот блок оставлен на случай, если понадобится прогрев чего-то ещё.
+        })();
+    </script>
+
+    <script>
+        (function () {
+            'use strict';
+            var BOTTOM_MARGIN = 24;
+
+            function navHeight() {
+                var nav = document.querySelector('.main-nav');
+                return nav ? nav.getBoundingClientRect().height : 0;
+            }
+
+            function smoothScrollToElement(el) {
+                if (!el) return;
+                var rect = el.getBoundingClientRect();
+                var vh = window.innerHeight;
+                var nav = navHeight();
+
+                // Уже виден целиком под nav — не трогаем страницу
+                if (rect.top >= nav && rect.bottom + BOTTOM_MARGIN <= vh) return;
+
+                if (rect.height > vh - BOTTOM_MARGIN * 2 - nav) {
+                    // Шаг выше экрана — выравниваем верх под nav
+                    var topPos = window.pageYOffset + rect.top - nav - 16;
+                    window.scrollTo({ top: Math.max(topPos, 0), behavior: 'smooth' });
+                    return;
+                }
+                // Обычный шаг — низ к низу экрана
+                var target = window.pageYOffset + rect.bottom - vh + BOTTOM_MARGIN;
+                window.scrollTo({ top: Math.max(target, 0), behavior: 'smooth' });
+            }
+
+            // Найти последний видимый активный/видимый блок в секции
+            function findActiveStep(page) {
+                if (!page) return null;
+                var candidates = page.querySelectorAll('.step, .pdf-workarea');
+                var best = null;
+                var bestBottom = -Infinity;
+                for (var i = 0; i < candidates.length; i++) {
+                    var el = candidates[i];
+                    if (el.offsetParent === null) continue;
+                    var isActive = el.classList.contains('active')
+                                || el.classList.contains('done')
+                                || el.classList.contains('visible');
+                    if (!isActive) continue;
+                    var r = el.getBoundingClientRect();
+                    if (r.bottom > bestBottom) {
+                        bestBottom = r.bottom;
+                        best = el;
+                    }
+                }
+                return best;
+            }
+
+            function scrollToActiveStepOf(pageId) {
+                var page = document.getElementById('page-' + pageId);
+                if (!page) return;
+                var step = findActiveStep(page);
+                if (step) smoothScrollToElement(step);
+            }
+
+            // Клик по вкладкам главного меню
+            document.querySelectorAll('.main-nav-btn[data-page]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var pageId = btn.dataset.page;
+                    setTimeout(function () { scrollToActiveStepOf(pageId); }, 50);
+                });
+            });
+
+            // Реакция на появление нового шага (после загрузки файла и т.п.)
+            var observedTargets = [
+                ['pdfWorkarea', 'visible'],
+                ['convStep2', 'active'],
+                ['step2', 'active'],
+                ['step3', 'active'],
+                ['ocrStep2', 'active'],
+                ['cmpStep2', 'active'],
+                ['cmpStep3', 'active']
+            ];
+            observedTargets.forEach(function (pair) {
+                var el = document.getElementById(pair[0]);
+                if (!el) return;
+                var cls = pair[1];
+                var wasActive = el.classList.contains(cls);
+                var observer = new MutationObserver(function () {
+                    var isActive = el.classList.contains(cls);
+                    if (isActive && !wasActive) {
+                        setTimeout(function () { smoothScrollToElement(el); }, 60);
+                    }
+                    wasActive = isActive;
+                });
+                observer.observe(el, { attributes: true, attributeFilter: ['class'] });
+            });
+        })();
+    </script>
 </body>
 </html>
